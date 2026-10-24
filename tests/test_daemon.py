@@ -235,6 +235,7 @@ def test_an_audio_device_error_is_reported_to_the_client_and_no_player_stays(run
     with pytest.raises(client.AudioError) as error:
         client.ensure()
     assert str(error.value) == "Error querying device -1"
+    assert "Error querying device -1" in (runtime / "player.log").read_text()
     assert not (runtime / "player.sock").exists()
     with pytest.raises(client.NoPlayer):
         client.connect()

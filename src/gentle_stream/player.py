@@ -47,6 +47,20 @@ def settle(level: np.ndarray, shown: np.ndarray) -> np.ndarray:
 def _default_stream(**kw):
     import sounddevice as sd
 
+    device = sd.query_devices(kw.get("device"), kind="output")
+    if device["max_output_channels"] == 1 and kw["channels"] == 2:
+        callback = kw["callback"]
+        stereo = np.empty((kw["blocksize"], 2), dtype=kw["dtype"])
+
+        def mono_callback(outdata, frames, time_info, status):
+            nonlocal stereo
+            if len(stereo) != frames:
+                stereo = np.empty((frames, 2), dtype=kw["dtype"])
+            callback(stereo, frames, time_info, status)
+            np.add(stereo[:, 0], stereo[:, 1], out=outdata[:, 0])
+            outdata[:, 0] *= 0.5
+
+        kw["channels"], kw["callback"] = 1, mono_callback
     return sd.OutputStream(**kw)
 
 

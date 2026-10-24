@@ -184,10 +184,12 @@ class Server:
 def _reporter(fd: int | None):
     def report(message: dict) -> None:
         line = json.dumps(message) + "\n"
-        if fd is None:
+        if fd is None or "error" in message:
             if not message.get("ready"):
                 sys.stderr.write(line)
-            return
+                sys.stderr.flush()
+            if fd is None:
+                return
         try:
             os.write(fd, line.encode())
             os.close(fd)

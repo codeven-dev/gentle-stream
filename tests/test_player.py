@@ -24,7 +24,7 @@ class FakeStream:
         pass
 
     def pull(self, frames=1024):
-        out = np.full((frames, 2), np.nan, dtype=np.float32)
+        out = np.full((frames, self.kw.get("channels", 2)), np.nan, dtype=np.float32)
         self.callback(out, frames, None, None)
         return out
 
@@ -62,6 +62,50 @@ def test_opens_a_stereo_float_stream_and_plays_audio(player):
     x = pull_seconds(stream, 1.0)
     assert np.all(np.isfinite(x)) and np.max(np.abs(x)) > 0.01
     assert p.playing and p.now.style.name == "First"
+
+
+def test_default_output_supports_mono_devices_and_keeps_both_stereo_channels(monkeypatch):
+    import sounddevice as sd
+
+    streams = []
+    monkeypatch.setattr(sd, "query_devices", lambda *args, **kwargs: {"max_output_channels": 1})
+
+    def output(**kwargs):
+        if kwargs["channels"] != 1:
+            raise sd.PortAudioError("Invalid number of channels")
+        streams.append(FakeStream(**kwargs))
+        return streams[-1]
+
+    monkeypatch.setattr(sd, "OutputStream", output)
+    player = Player(Engine(seed=1, samples=False), prebuffer=0.1)
+    try:
+        player.start()
+        for frames in (1024, 512, 2048):
+            mono = streams[0].pull(frames)
+            assert mono.shape == (frames, 1) and np.all(np.isfinite(mono))
+            assert np.max(np.abs(mono)) > 0
+            np.testing.assert_allclose(mono[:, 0], player._tail[-frames:], rtol=1e-6, atol=1e-8)
+    finally:
+        player.close()
+
+
+@pytest.mark.parametrize("available_channels", [2, 8])
+def test_default_output_preserves_stereo_audio_on_stereo_and_surround_devices(monkeypatch, available_channels):
+    import sounddevice as sd
+
+    monkeypatch.setattr(sd, "query_devices", lambda *args, **kwargs: {"max_output_channels": available_channels})
+    monkeypatch.setattr(sd, "OutputStream", FakeStream)
+    actual = Player(Engine(seed=7, samples=False), prebuffer=0.1)
+    reference = Player(Engine(seed=7, samples=False), stream_factory=FakeStream, prebuffer=0.1)
+    try:
+        actual.start()
+        reference.start()
+        assert actual._stream.kw["channels"] == 2
+        for _ in range(3):
+            np.testing.assert_array_equal(actual._stream.pull(), reference._stream.pull())
+    finally:
+        actual.close()
+        reference.close()
 
 
 def test_keeps_rendering_ahead_of_playback(player):

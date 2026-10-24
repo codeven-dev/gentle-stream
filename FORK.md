@@ -38,6 +38,12 @@ Tests exercise the register, active phrase development and rendered tone
 response across all ten genres. These are measured improvements to the
 procedural engine, not a claim to match a professionally produced recording.
 
+The default output adapter queries device capabilities. Mono outputs receive
+the average of both internal stereo channels through a reusable callback
+buffer; stereo and multichannel devices retain the original stereo path.
+Device names and system routing are not changed. Startup errors sent through
+the readiness pipe are also flushed to the daemon log for diagnosis.
+
 `tests/test_startup.py` verifies interface imports and style validation in a
 fresh process. Run the full test suite with warnings treated as errors:
 
