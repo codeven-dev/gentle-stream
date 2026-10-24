@@ -21,7 +21,6 @@ from __future__ import annotations
 from functools import lru_cache
 
 import numpy as np
-from scipy.signal import sosfilt
 
 from ..composer import FIRST_FORM
 from ..samples import Hit, Program
@@ -120,6 +119,8 @@ class Instruments:
         return self._cached(key, lambda: self._wobble(m, _bucket(dur), beat, off, rates, depth)) * vel
 
     def _wobble(self, m, dur, beat, off, rates, depth):
+        from scipy.signal import sosfilt
+
         n = int((dur + 0.02) * self.sr)
         s = self._saws(m, n)
         cut = CLOSED * (OPEN / CLOSED) ** self._curve(n, beat, off, rates, depth)

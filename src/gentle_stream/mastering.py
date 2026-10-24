@@ -7,7 +7,6 @@ processing it in one go, so the stream joins seamlessly. The reverb's impulse re
 from __future__ import annotations
 
 import numpy as np
-from scipy.signal import butter, fftconvolve, lfilter, sosfilt
 
 
 def procedural_ir(space: float, sr: int, seed: int = 0) -> np.ndarray:
@@ -15,6 +14,8 @@ def procedural_ir(space: float, sr: int, seed: int = 0) -> np.ndarray:
 
     Length runs from 1.5 s (space 0) to 2.5 s (space 1); each channel is normalised to unit energy.
     """
+    from scipy.signal import butter, sosfilt
+
     space = float(np.clip(space, 0, 1))
     length = 1.5 + 1.0 * space
     n = int(length * sr)
@@ -48,6 +49,8 @@ class ConvolutionReverb:
         self.ir = ir
 
     def __call__(self, x: np.ndarray) -> np.ndarray:
+        from scipy.signal import fftconvolve
+
         n = len(x)
         y = fftconvolve(x, self.ir, axes=0)
         m = max(len(y), len(self._tail))
@@ -87,6 +90,8 @@ class Compressor:
                         np.where(over >= k, over * slope, slope * (over + k) ** 2 / (2 * self.knee)))
 
     def __call__(self, x: np.ndarray) -> np.ndarray:
+        from scipy.signal import lfilter
+
         n, s = len(x), self.step
         power, self._det_zi = lfilter(self._det_b, self._det_a, np.mean(x ** 2, axis=1), zi=self._det_zi)
         first = -(-self._pos // s) * s                       # first grid point at or after this block

@@ -6,25 +6,32 @@ from __future__ import annotations
 from functools import lru_cache
 
 import numpy as np
-from scipy.signal import butter, sosfilt
 
 SR = 44100
 
 
 @lru_cache(maxsize=256)
 def _sos(kind: str, f1: int, f2: int = 0, sr: int = SR):
+    from scipy.signal import butter
+
     return butter(2, [f1, f2] if kind == "bandpass" else f1, kind, fs=sr, output="sos")
 
 
 def lp(x, f, sr=SR):
+    from scipy.signal import sosfilt
+
     return sosfilt(_sos("lowpass", int(f), 0, sr), x)
 
 
 def hp(x, f, sr=SR):
+    from scipy.signal import sosfilt
+
     return sosfilt(_sos("highpass", int(f), 0, sr), x)
 
 
 def bp(x, a, b, sr=SR):
+    from scipy.signal import sosfilt
+
     return sosfilt(_sos("bandpass", int(a), int(b), sr), x)
 
 
@@ -40,6 +47,8 @@ class StatefulFilter:
         self.zi = np.zeros((sos.shape[0], 2, channels))
 
     def __call__(self, x):
+        from scipy.signal import sosfilt
+
         y, self.zi = sosfilt(self.sos, x, axis=0, zi=self.zi)
         return y
 
