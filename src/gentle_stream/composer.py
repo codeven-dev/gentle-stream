@@ -109,6 +109,7 @@ class Composer:
         self.style, self.ton = style, ton
         self.chord_hook = chord_hook
         self.rng = np.random.default_rng([seed, 0xC0])
+        self._answer_rng = np.random.default_rng([seed, 0xA0])
         self.scale_iv = MODES[style.mode]
         self._melody_base = 12 * LEAD_REGISTERS.index(style.lead_register)
         self.ninth = {d: bool(self.rng.random() < 0.55) for d in range(1, 8)}
@@ -218,25 +219,27 @@ class Composer:
         r1, r2 = (RHYTHMS[i] for i in self.rng.choice(len(RHYTHMS), 2, replace=False))
         return self._line(((0, r1), (1, r2)), 0)
 
-    def _line(self, bars, step):
+    def _line(self, bars, step, rng=None):
+        rng = self.rng if rng is None else rng
         out, leap = [], False
         for bar, rh in bars:
             for beat, ln in rh:
                 out.append((bar * 4 + beat, step, ln))
-                d = int(self.rng.choice([-1, -1, -2, 1, 0]))
-                if not leap and self.rng.random() < 0.18:
+                d = int(rng.choice([-1, -1, -2, 1, 0]))
+                if not leap and rng.random() < 0.18:
                     d, leap = 3, True
                 step = int(np.clip(step + d, -5, 5))
         return tuple(out)
 
     def _develop(self, motif, contrast: bool = False):
         """Keep the head (first bar), grow a new tail: the piece's identity stays, the phrase moves on."""
+        rng = self._answer_rng if contrast else self.rng
         head = tuple(x for x in motif if x[0] < 4)
         head_rhythm = tuple((beat, length) for beat, _, length in head)
         tail = tuple((beat - 4, length) for beat, _, length in motif if beat >= 4)
         rhythms = tuple(r for r in RHYTHMS if not contrast or r not in (head_rhythm, tail))
-        rh = rhythms[int(self.rng.integers(len(rhythms)))]
-        return head + self._line(((1, rh),), head[-1][1] - 1)
+        rh = rhythms[int(rng.integers(len(rhythms)))]
+        return head + self._line(((1, rh),), head[-1][1] - 1, rng=rng)
 
     def _anchor(self) -> int:
         scale = self._scale(0)

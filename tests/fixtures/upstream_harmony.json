@@ -1,0 +1,187 @@
+{
+  "upstream": "381290451544ad2ca3348a68a81b3056bdac73b7",
+  "tonic_midi": 50,
+  "bars": 124,
+  "cases": [
+    {
+      "genre": "lofi",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "lofi",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "lofi",
+      "mode": "major",
+      "seed": 7,
+      "sha256": "9c64944d102c96da0808d01a785bb3671a478579d57f1a6388a403e6356f7d5d"
+    },
+    {
+      "genre": "lofi",
+      "mode": "major",
+      "seed": 42,
+      "sha256": "0daee47c25fa20bd07f65d54b5da9341c612d9ab5f450d99eabb985fa14f02b7"
+    },
+    {
+      "genre": "lofi",
+      "mode": "dorian",
+      "seed": 7,
+      "sha256": "5e4446abcc427780386e0f6ef1b9d190286ca415aba236ac4a77fa5cdad80e42"
+    },
+    {
+      "genre": "lofi",
+      "mode": "dorian",
+      "seed": 42,
+      "sha256": "111d3a09a7f31f19fca8dcfd7d27c5df4bd30541ed2644ab43cc91e4e075837f"
+    },
+    {
+      "genre": "lofi",
+      "mode": "phrygian",
+      "seed": 7,
+      "sha256": "c1b37d8aec4f60ce499035e64b7d40c246cb0935bd632d15d6ddaf3eb5602323"
+    },
+    {
+      "genre": "lofi",
+      "mode": "phrygian",
+      "seed": 42,
+      "sha256": "da97779aa0628686731ac59535e5ca5e17bf3a1a3da8261cf1af076351858992"
+    },
+    {
+      "genre": "lofi",
+      "mode": "lydian",
+      "seed": 7,
+      "sha256": "7efdb3bc6d73b760c612b140f810dfae78e966d87f4b5811e800cb602ed3d415"
+    },
+    {
+      "genre": "lofi",
+      "mode": "lydian",
+      "seed": 42,
+      "sha256": "553dcb25f1437f0c6f0c2534a3ecf37461aea65217026d908d686ae4525e083e"
+    },
+    {
+      "genre": "lofi",
+      "mode": "mixolydian",
+      "seed": 7,
+      "sha256": "1f9d78f887003e7ece9ac43c98a0b1da5e0974e2351883049fc21160fea333d0"
+    },
+    {
+      "genre": "lofi",
+      "mode": "mixolydian",
+      "seed": 42,
+      "sha256": "184f8ef574b5607efb2b28e50f77a2e1aeb683972362288e38004459a7540c04"
+    },
+    {
+      "genre": "ambient",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "a318bfe7dea03430eb5ce27fc5ac402bf6dd870b15ffc486fc7321d3f1bff3cc"
+    },
+    {
+      "genre": "ambient",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "32a13309c5a1fd0440375a5170cc44030a0677cfc64c14e62fb1f44633815ff2"
+    },
+    {
+      "genre": "chiptune",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "chiptune",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "synthwave",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "synthwave",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "jazz",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "72945d90d93f1ce691b148f731a267fbd64e6b34afe8aaf49cfe354fb4919b23"
+    },
+    {
+      "genre": "jazz",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "505428a4e14ed428c5514ba42bd0a07627d6a6fc781c61043899bad59cd2beef"
+    },
+    {
+      "genre": "rock",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "rock",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "electro",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "electro",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "electrohouse",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "electrohouse",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    },
+    {
+      "genre": "cumbia",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "9b2338501a4457a7112d4b833debe030a98757ad4c97bd6a37602bab7fd43b7d"
+    },
+    {
+      "genre": "cumbia",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "8838e35fee2d3b9e6c709c27cc09401f96bdd0db01fa77f3ede4acaf00e6fe7f"
+    },
+    {
+      "genre": "dubstep",
+      "mode": "minor",
+      "seed": 7,
+      "sha256": "422aa3ce036a30a3daac7c3c1975838f0affa964d6514a9133ecfb4c7e4ab0ef"
+    },
+    {
+      "genre": "dubstep",
+      "mode": "minor",
+      "seed": 42,
+      "sha256": "a743de212f54a14f063049018a538eb23fecb1acd5fb8f48e39b4d63f77cf031"
+    }
+  ]
+}

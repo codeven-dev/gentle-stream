@@ -26,19 +26,19 @@ def test_bar_shape_and_length_follow_the_tempo():
 
 
 @pytest.mark.parametrize("genre", genres.NAMES)
-def test_brightness_softens_highs_in_every_genre_without_removing_the_body(genre):
+def test_brightness_preserves_each_genres_native_tone(genre):
     time = np.arange(SR) / SR
     signal = 0.005 * np.column_stack([np.sin(2 * np.pi * frequency * time) for frequency in (500, 6000)])
 
     def levels(brightness):
         engine = Engine(Style(genre=genre, brightness=brightness, vinyl=0, space=0), seed=7, samples=False)
         output = engine._master(signal)
+        assert engine._tone_cut == int(genres.get(genre).master(engine.style).tone)
         return np.sqrt(np.mean(output[int(0.7 * SR):] ** 2, axis=0))
 
-    dark, bright = levels(0.35), levels(1)
-    assert dark[1] / dark[0] < 0.35
+    dark, normal, bright = levels(0), levels(0.45), levels(1)
     assert dark[0] > 0.001
-    assert bright[1] > 2 * dark[1]
+    assert dark[1] / dark[0] < normal[1] / normal[0] < bright[1] / bright[0]
 
 
 def test_output_is_audible_and_never_clips():

@@ -77,7 +77,7 @@ class Style:
     vinyl: float = 0.5         # crackle amount
     space: float = 0.5         # room size/wetness
     lead_density: float = 0.5  # how often the motif plays
-    lead_register: str = "low"  # melody range, independent of genre and instrument colour
+    lead_register: str = "mid"  # preserve the upstream range unless explicitly changed
 
     @classmethod
     def from_dict(cls, data: dict, base: Style | None = None) -> Style:
