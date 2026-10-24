@@ -102,7 +102,10 @@ def runtime(monkeypatch):
         finally:
             for pid in pids:
                 if alive(pid):
-                    os.kill(pid, signal.SIGKILL)
+                        try:
+                            os.kill(pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass  # The daemon can exit between the liveness check and the signal.
             shutil.rmtree(root, ignore_errors=True)
 
 
