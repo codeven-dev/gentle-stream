@@ -13,6 +13,11 @@ instance. The original palette remains the default and other instances are
 not affected. This lets Herdr Music provide its own theme without copying
 the animation or modifying module globals.
 
+`client.read_state()` reads one authenticated JSON snapshot without starting
+audio or loading NumPy, SciPy, or the interface. The full player client loads
+its numerical dependencies only when it is instantiated. Both paths share
+the original connection and authentication handling.
+
 `tests/test_startup.py` verifies interface imports and style validation in a
 fresh process. Run the full test suite with warnings treated as errors:
 

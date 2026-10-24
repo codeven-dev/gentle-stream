@@ -18,12 +18,13 @@ import sys
 import threading
 import time
 from multiprocessing.connection import AuthenticationError, Client
-
-import numpy as np
+from typing import TYPE_CHECKING
 
 from . import daemon
-from .player import NowPlaying, settle
-from .style import Style
+
+if TYPE_CHECKING:
+    import numpy as np
+    from .style import Style
 
 STARTUP_TIMEOUT = 30.0   # spawn to ready: imports, engine setup and the first rendered bar
 STOP_TIMEOUT = 10.0
@@ -47,6 +48,13 @@ class PlayerGone(ConnectionError):
 
 def connect() -> PlayerClient:
     """Attach to the running player; raises NoPlayer when there is none (a stale socket counts as none)."""
+    try:
+        return PlayerClient(_connect())
+    except PlayerGone:
+        raise NoPlayer("nothing is playing") from None
+
+
+def _connect():
     paths = daemon.Paths(daemon.runtime_dir())
     try:
         daemon.check_private(paths.dir)
@@ -61,10 +69,22 @@ def connect() -> PlayerClient:
         raise NoPlayer("nothing is playing") from None
     except OSError as e:
         raise PlayerError(f"cannot reach the player: {e}") from None
-    try:
-        return PlayerClient(conn)
-    except PlayerGone:
-        raise NoPlayer("nothing is playing") from None
+    return conn
+
+
+def read_state(timeout: float = 0.5) -> dict:
+    """Read one raw state snapshot without starting audio or importing the DSP/UI stack."""
+    with _connect() as conn:
+        try:
+            conn.send_bytes(b'{"cmd":"state"}')
+            if not conn.poll(timeout):
+                raise PlayerError("the player did not answer in time")
+            answer = json.loads(conn.recv_bytes(1 << 20))
+        except (EOFError, OSError, ValueError) as error:
+            raise PlayerError("cannot read the player state") from error
+    if not isinstance(answer, dict) or not answer.get("ok") or not isinstance(answer.get("state"), dict):
+        raise PlayerError("the player returned an invalid state")
+    return answer["state"]
 
 
 def ensure(timeout: float = STARTUP_TIMEOUT) -> PlayerClient:
@@ -115,6 +135,8 @@ def _spawn(deadline: float) -> None:
 
 class PlayerClient:
     def __init__(self, conn):
+        import numpy as np
+
         self._conn = conn
         self._lock = threading.Lock()   # the UI thread polls while a worker may send a style
         self._shown = np.zeros(0)
@@ -142,6 +164,9 @@ class PlayerClient:
             self._conn = None
 
     def _update(self, state: dict) -> None:
+        from .player import NowPlaying
+        from .style import Style
+
         now = state["now"]
         self.pid = state["pid"]
         self.playing, self.volume, self.level = state["playing"], state["volume"], state["level"]
@@ -164,6 +189,9 @@ class PlayerClient:
         """Already playing: the player opened the audio before we could attach."""
 
     def spectrum(self, bands: int = 32) -> np.ndarray:
+        import numpy as np
+        from .player import settle
+
         state = self.request("state", bands=bands)
         self._update(state)
         self._shown = settle(np.asarray(state["spectrum"], dtype=float), self._shown)

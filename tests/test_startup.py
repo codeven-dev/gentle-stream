@@ -27,3 +27,21 @@ assert 'scipy.signal' not in sys.modules, 'The remote interface initialized the 
         timeout=30,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_the_state_reader_imports_without_audio_or_interface_dependencies():
+    source = Path(__file__).resolve().parents[1] / "src"
+    result = subprocess.run(
+        [sys.executable, "-c", """
+import sys
+from gentle_stream import client
+assert 'numpy' not in sys.modules, 'The state reader imported NumPy'
+assert 'scipy' not in sys.modules, 'The state reader imported SciPy'
+assert 'textual' not in sys.modules, 'The state reader imported the interface'
+"""],
+        env=os.environ | {"PYTHONPATH": str(source)},
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr

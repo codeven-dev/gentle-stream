@@ -113,6 +113,27 @@ def run_ctl(capsys, action):
 
 
 # ------------------------------------------------------------ lifecycle
+def test_read_only_state_snapshots_never_start_or_stop_the_player(runtime):
+    from gentle_stream import client
+
+    assert callable(getattr(client, "read_state", None)), "A lightweight state reader is required"
+    with pytest.raises(client.NoPlayer):
+        client.read_state()
+    assert not runtime.exists()
+    connection = client.ensure()
+    pid = connection.pid
+    state = client.read_state()
+    assert state["pid"] == pid and state["playing"] is True
+    assert state["now"]["style"]["name"] == connection.now.style.name
+    connection.pause()
+    assert client.read_state()["playing"] is False
+    connection.detach()
+    assert client.read_state()["pid"] == pid
+    client.connect().close()
+    with pytest.raises(client.NoPlayer):
+        client.read_state()
+
+
 def test_the_first_client_starts_the_player_and_the_next_one_attaches(runtime):
     from gentle_stream import client
 
