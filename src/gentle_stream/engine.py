@@ -30,6 +30,7 @@ from .synth import SR, StatefulFilter, _sos, bp, hp, lp, mtof  # noqa: F401  (re
 
 IR_SEED = 1
 RAMP = 0.05   # seconds over which a changed master gain glides to its new value
+TONE_RANGE = (1000.0, 18000.0)  # shared brightness ceiling; a genre may keep a darker native colour
 
 
 @lru_cache(maxsize=16)
@@ -183,7 +184,8 @@ class Engine:
         y = np.stack([np.interp(pos, grid, ext[:, c]) for c in (0, 1)], 1)
         self._wow_hist = ext[-W:]
         # tone: darker or more open tape; a new cutoff crossfades from the old filter, whose output stays continuous
-        cut = int(m.tone)
+        dark, bright = TONE_RANGE
+        cut = int(min(m.tone, dark * (bright / dark) ** self.style.brightness, 0.45 * sr))
         old = None
         if cut != self._tone_cut:
             new = StatefulFilter(_sos("lowpass", cut, 0, sr), 2)

@@ -73,3 +73,13 @@ def test_variation_keeps_the_genre():
 def test_summary_shows_the_genre():
     assert Style(genre="chiptune").summary().startswith("chiptune · ")
     assert "lofi" in Style().summary()
+
+
+def test_melody_register_is_explicit_validated_and_preserved():
+    assert Style.from_dict({}).to_dict().get("lead_register") == "low"
+    for register in ("low", "mid", "high"):
+        style = Style.from_dict({"lead_register": register})
+        assert style.to_dict()["lead_register"] == register
+        assert Style.from_dict(style.to_dict()) == style
+        assert style.variation(np.random.default_rng(7)).to_dict()["lead_register"] == register
+        assert Style.from_dict({"lead_register": "invalid"}, style) == style

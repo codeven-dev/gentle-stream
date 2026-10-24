@@ -45,6 +45,7 @@ Reply with ONLY one JSON object, no prose, with exactly these fields:
 - "vinyl": 0-1 (crackle)
 - "space": 0-1 (room size)
 - "lead_density": 0-1 (how often the melody plays)
+- "lead_register": low, mid or high (melody range; low is warm, high is intentionally prominent; keep the current range unless asked to change it)
 
 Genres (lofi is the default: change the genre only when the request suggests another one, by naming it or by a
 style, era, instrument or scene that clearly belongs to it; a request that only adjusts the music keeps the

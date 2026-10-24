@@ -4,6 +4,7 @@ import pytest
 from gentle_stream.composer import (COUNTER_ENERGY, FIRST_FORM, FORM, MAIN, Composer, augment, invert,
                                     sequence)
 from gentle_stream.style import MODES, Style
+from gentle_stream import genres
 
 TON = 50
 CYCLE1 = sum(n for _, n in FIRST_FORM)
@@ -187,3 +188,40 @@ def test_plans_are_deterministic_per_seed():
     assert plans(seed=11) != plans(seed=12)
     c = Composer(Style(), 11, TON)       # random access gives the same plan as sequential access
     assert c.plan(70) == plans(seed=11)[70]
+
+
+@pytest.mark.parametrize("genre", genres.NAMES)
+def test_melody_register_changes_pitch_without_changing_intervals_or_rhythm(genre):
+    phrases = {}
+    for register in ("low", "mid", "high"):
+        composer = Composer(Style(genre=genre, lead_register=register), 7, TON, genres.get(genre).chord)
+        phrases[register] = [note for bar in range(4, 6) for note in composer.plan(bar).melody]
+    assert phrases["mid"]
+    for register, shift in (("low", -12), ("high", 12)):
+        assert [(n.beat, n.length) for n in phrases[register]] == [(n.beat, n.length) for n in phrases["mid"]]
+        assert [n.midi for n in phrases[register]] == [n.midi + shift for n in phrases["mid"]]
+
+
+@pytest.mark.parametrize("genre", genres.NAMES)
+def test_answers_develop_the_theme_in_bars_that_are_actually_audible(genre):
+    rhythm = lambda plan: tuple((note.beat, note.length) for note in plan.melody)
+    for density, response_bar in ((0.1, 6), (0.3, 6), (0.5, 5), (0.9, 6)):
+        for seed in range(3):
+            composer = Composer(Style(genre=genre, lead_density=density), seed, TON, genres.get(genre).chord)
+            for start in (4, 12):
+                question = [composer.plan(bar) for bar in (start, start + 1)]
+                response = composer.plan(start + response_bar)
+                assert "lead" in response.layers
+                assert rhythm(composer.plan(start + 4)) == rhythm(question[0])
+                assert all(rhythm(response) != rhythm(bar) for bar in question)
+
+
+@pytest.mark.parametrize("genre", genres.NAMES)
+def test_counter_melody_follows_the_selected_register(genre):
+    parts = {}
+    for register in ("low", "mid", "high"):
+        composer = Composer(Style(genre=genre, lead_register=register), 7, TON, genres.get(genre).chord)
+        parts[register] = [note.midi for bar in range(12, 20) for note in composer.plan(bar).counter]
+    assert parts["mid"]
+    assert parts["low"] == [pitch - 12 for pitch in parts["mid"]]
+    assert parts["high"] == [pitch + 12 for pitch in parts["mid"]]

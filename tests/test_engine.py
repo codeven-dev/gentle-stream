@@ -5,6 +5,7 @@ import pytest
 
 from gentle_stream.engine import SR, Engine
 from gentle_stream.style import Style
+from gentle_stream import genres
 
 
 @pytest.fixture(autouse=True)
@@ -22,6 +23,22 @@ def test_bar_shape_and_length_follow_the_tempo():
     assert e.backend == "procedural"
     bar = e.render_bar()
     assert bar.dtype == np.float32 and bar.shape == (int(round(3.0 * SR)), 2)
+
+
+@pytest.mark.parametrize("genre", genres.NAMES)
+def test_brightness_softens_highs_in_every_genre_without_removing_the_body(genre):
+    time = np.arange(SR) / SR
+    signal = 0.005 * np.column_stack([np.sin(2 * np.pi * frequency * time) for frequency in (500, 6000)])
+
+    def levels(brightness):
+        engine = Engine(Style(genre=genre, brightness=brightness, vinyl=0, space=0), seed=7, samples=False)
+        output = engine._master(signal)
+        return np.sqrt(np.mean(output[int(0.7 * SR):] ** 2, axis=0))
+
+    dark, bright = levels(0.35), levels(1)
+    assert dark[1] / dark[0] < 0.35
+    assert dark[0] > 0.001
+    assert bright[1] > 2 * dark[1]
 
 
 def test_output_is_audible_and_never_clips():

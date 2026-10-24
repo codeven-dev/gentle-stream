@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import stat
 import textwrap
 
@@ -68,6 +69,14 @@ def test_interpret_turns_the_answer_into_a_style(fake):
     assert (s.name, s.key, s.bpm, s.chords, s.lead, s.drums) == ("Neon Rain", "E", 68.0, "rhodes", "nylon", "soft")
     assert s.mood == "lluvia de neón en Tokio a las 3am"   # the user's words, not the model's
     assert s.space == 0.8                                  # missing fields keep the current style
+
+
+def test_prompt_exposes_every_style_control_to_the_model(fake):
+    run, argv = fake
+    result = GentleShell(binary=str(run('{"lead_register": "high"}'))).interpret("a higher melody", Style())
+    declared = set(re.findall(r'^- "([a-z_]+)":', argv()[-1], re.MULTILINE))
+    assert declared == set(Style().to_dict()) - {"mood"}
+    assert result.lead_register == "high"
 
 
 def test_command_runs_non_interactive_with_the_chosen_model(fake):

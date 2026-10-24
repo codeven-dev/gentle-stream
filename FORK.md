@@ -6,7 +6,7 @@ This fork is based on Gentleman-Programming/gentle-stream revision
 It defers public `scipy.signal` imports in `synth.py`, `mastering.py`, and
 `genres/dubstep.py` until audio processing functions run. Opening the remote
 player interface therefore does not initialize the SciPy signal backend.
-The synthesis functions and their arguments remain unchanged.
+That import change does not alter the synthesis functions or their arguments.
 
 `Spectrum.COLORS` also allows a caller to set the spectrum palette per widget
 instance. The original palette remains the default and other instances are
@@ -17,6 +17,26 @@ the animation or modifying module globals.
 audio or loading NumPy, SciPy, or the interface. The full player client loads
 its numerical dependencies only when it is instantiated. Both paths share
 the original connection and authentication handling.
+
+The shared composer now develops contrasting answers while retaining the motif
+head and harmonic cadences. New rhythms reach active melody bars even at sparse
+densities. This behavior applies to every registered genre.
+
+`Style.lead_register` selects `low`, `mid`, or `high`, independently of genre.
+The default is `low`; `mid` preserves the original melody range, and `high` is
+one octave above it. The schema, validator, saved styles and model prompt carry
+the setting. The counter-melody follows the same range, preserving its relation
+to the lead. Existing presets without the field use the new low default.
+
+The existing master low-pass now also follows a shared brightness ceiling from
+1 kHz to 18 kHz. A genre can retain a darker native tone; setting brightness to
+one retains its original full-brightness cutoff at the standard sample rate.
+This adds no filter, worker or model call. Genre voices, rhythm scheduling and
+master-character settings remain separate.
+
+Tests exercise the register, active phrase development and rendered tone
+response across all ten genres. These are measured improvements to the
+procedural engine, not a claim to match a professionally produced recording.
 
 `tests/test_startup.py` verifies interface imports and style validation in a
 fresh process. Run the full test suite with warnings treated as errors:

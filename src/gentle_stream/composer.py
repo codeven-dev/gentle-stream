@@ -14,7 +14,7 @@ from typing import Callable
 
 import numpy as np
 
-from .style import MODES, PROGRESSIONS, Style
+from .style import LEAD_REGISTERS, MODES, PROGRESSIONS, Style
 
 RHYTHMS = (((0, 1.5), (1.5, .5), (2, 2)), ((0.5, 1), (1.5, 1), (2.5, 1.5)), ((0, 1), (1, 1), (2, .5), (2.5, 1.5)),
            ((0, 3), (3, 1)), ((1, .5), (1.5, .5), (2, 2)), ((0, 2), (2.5, .5), (3, 1)))
@@ -110,6 +110,7 @@ class Composer:
         self.chord_hook = chord_hook
         self.rng = np.random.default_rng([seed, 0xC0])
         self.scale_iv = MODES[style.mode]
+        self._melody_base = 12 * LEAD_REGISTERS.index(style.lead_register)
         self.ninth = {d: bool(self.rng.random() < 0.55) for d in range(1, 8)}
         self.motif = self._make_motif()
         self.anchor = self._anchor()
@@ -228,19 +229,22 @@ class Composer:
                 step = int(np.clip(step + d, -5, 5))
         return tuple(out)
 
-    def _develop(self, motif):
+    def _develop(self, motif, contrast: bool = False):
         """Keep the head (first bar), grow a new tail: the piece's identity stays, the phrase moves on."""
         head = tuple(x for x in motif if x[0] < 4)
-        rh = RHYTHMS[int(self.rng.integers(len(RHYTHMS)))]
+        head_rhythm = tuple((beat, length) for beat, _, length in head)
+        tail = tuple((beat - 4, length) for beat, _, length in motif if beat >= 4)
+        rhythms = tuple(r for r in RHYTHMS if not contrast or r not in (head_rhythm, tail))
+        rh = rhythms[int(self.rng.integers(len(rhythms)))]
         return head + self._line(((1, rh),), head[-1][1] - 1)
 
     def _anchor(self) -> int:
         scale = self._scale(0)
-        target = self.ton + 24 + self.scale_iv[int(self.rng.choice([0, 2, 4]))]
+        target = self.ton + self._melody_base + 12 + self.scale_iv[int(self.rng.choice([0, 2, 4]))]
         return scale.index(min(scale, key=lambda m: abs(m - target)))
 
     def _scale(self, key: int) -> list[int]:
-        return sorted(self.ton + key + 12 + o + 12 * k for o in self.scale_iv for k in range(4))
+        return sorted(self.ton + key + self._melody_base + o + 12 * k for o in self.scale_iv for k in range(4))
 
     def _tones(self, b: _Bar, beat: float) -> set[int]:
         chord = b.passing if b.passing is not None and beat >= 2 else b.chord
@@ -262,8 +266,13 @@ class Composer:
         tonic = (self.ton + key) % 12
         last = scale[self.anchor]
         for first, transform in phrases:
-            line = transform(self.motif)
-            body = (line, tuple((b, st - 1, ln) for b, st, ln in line if b < 4))   # bars 0-1, then a sequence
+            contrast = bool(first) and name in ("A", "B")
+            motif = self._develop(self.motif, contrast=True) if contrast else self.motif
+            line = transform(motif)
+            # Keep the new answer audible in the active bars of sparse arrangements.
+            echo = (tuple((b - 4, st - 1, ln) for b, st, ln in line if b >= 4) if contrast else
+                    tuple((b, st - 1, ln) for b, st, ln in line if b < 4))
+            body = (line, echo)
             for k in range(3):
                 pos = first + k
                 bar = self._bars[start + pos - (8 - n)]
@@ -295,7 +304,8 @@ class Composer:
 
     def _counter(self, start: int, n: int, key: int) -> None:
         """A slower inner voice on chord tones, moving against the lead's direction."""
-        lo, hi = self.ton + key + 5, self.ton + key + 21
+        base = self.ton + key + self._melody_base - 12
+        lo, hi = base + 5, base + 21
         prev = None
         if start and self._bars[start - 1].counter:
             last = self._bars[start - 1].counter[-1]

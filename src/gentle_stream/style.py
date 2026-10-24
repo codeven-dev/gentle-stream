@@ -21,6 +21,7 @@ MODES = {
 }
 CHORD_INSTRUMENTS = ("piano", "rhodes", "nylon", "pad")
 LEAD_INSTRUMENTS = CHORD_INSTRUMENTS + ("none",)
+LEAD_REGISTERS = ("low", "mid", "high")
 DRUMS = ("none", "soft", "lofi", "busy")
 
 # Progressions (scale degrees, 1-based) that sound idiomatic in each mode family; used by `variation`.
@@ -76,6 +77,7 @@ class Style:
     vinyl: float = 0.5         # crackle amount
     space: float = 0.5         # room size/wetness
     lead_density: float = 0.5  # how often the motif plays
+    lead_register: str = "low"  # melody range, independent of genre and instrument colour
 
     @classmethod
     def from_dict(cls, data: dict, base: Style | None = None) -> Style:
@@ -110,6 +112,7 @@ class Style:
             vinyl=_clamp(data.get("vinyl"), 0, 1, b.vinyl),
             space=_clamp(data.get("space"), 0, 1, b.space),
             lead_density=_clamp(data.get("lead_density"), 0, 1, b.lead_density),
+            lead_register=_choice(data.get("lead_register"), LEAD_REGISTERS, b.lead_register),
         )
 
     def to_dict(self) -> dict:
