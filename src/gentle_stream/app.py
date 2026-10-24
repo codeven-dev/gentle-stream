@@ -75,6 +75,7 @@ class Spectrum(Static):
     """Block-character bars filling the widget, one column per log-spaced band, shaded from rose (top) to muted."""
 
     MIN_ROWS = 5
+    COLORS = SPECTRUM_COLORS
 
     def __init__(self, player: Player, **kw):
         super().__init__(**kw)
@@ -86,7 +87,7 @@ class Spectrum(Static):
         levels = self.player.spectrum(width) * rows_n * 8
         rows = []
         for i, r in enumerate(range(rows_n - 1, -1, -1)):    # i = 0 is the top row
-            color = SPECTRUM_COLORS[min(len(SPECTRUM_COLORS) - 1, i * len(SPECTRUM_COLORS) // rows_n)]
+            color = self.COLORS[min(len(self.COLORS) - 1, i * len(self.COLORS) // rows_n)]
             cell = (levels - r * 8).clip(0, 8).astype(int)
             rows.append(Text("".join(BLOCKS[c] for c in cell), style=color))
         self.update(Text("\n").join(rows))

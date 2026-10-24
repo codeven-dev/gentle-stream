@@ -12,6 +12,21 @@ from tests.test_daemon import runtime, wait_for  # noqa: F401  (fixture: private
 from tests.test_player import FakeStream
 
 
+@pytest.mark.asyncio
+async def test_spectrum_supports_a_palette_without_changing_other_instances():
+    from gentle_stream.app import Spectrum
+
+    app, player = make_app(FakeShell())
+    async with app.run_test() as pilot:
+        spectrum = app.query_one(Spectrum)
+        spectrum.COLORS = ("#F06A6A", "#892D37")
+        spectrum.tick()
+        colors = {span.style for span in spectrum.content.spans}
+        assert colors == {"#F06A6A", "#892D37"}
+        other = Spectrum(player)
+        assert other.COLORS != spectrum.COLORS
+
+
 class FakeShell:
     def __init__(self, answer=None, error=None, models=("claude-bridge/claude-haiku-5-5", "openai-codex/gpt-6-luna"),
                  usage=None):

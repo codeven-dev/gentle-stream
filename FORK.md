@@ -8,6 +8,11 @@ It defers public `scipy.signal` imports in `synth.py`, `mastering.py`, and
 player interface therefore does not initialize the SciPy signal backend.
 The synthesis functions and their arguments remain unchanged.
 
+`Spectrum.COLORS` also allows a caller to set the spectrum palette per widget
+instance. The original palette remains the default and other instances are
+not affected. This lets Herdr Music provide its own theme without copying
+the animation or modifying module globals.
+
 `tests/test_startup.py` verifies interface imports and style validation in a
 fresh process. Run the full test suite with warnings treated as errors:
 
